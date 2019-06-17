@@ -26,21 +26,21 @@ C = [CPV;CBESS;CGD;CDR];
 sizeC = size(C);
 
 %% Parameters
-w_CPV = 1; % Inertial factor CPV
-c1_CPV = 1; % Constant Speed Local CPV 
-c2_CPV = 1; % Constant Speed Global CPV
+w_CPV = 0.5; % Inertial factor CPV
+c1_CPV = 2; % Constant Speed Local CPV 
+c2_CPV = 2; % Constant Speed Global CPV
 
-w_CBESS = 1; % Inertial factor CBESS
-c1_CBESS = 1; % Constant Speed Local CBESS
-c2_CBESS = 1; % Constant Speed Global CBESS
+w_CBESS = 0.5; % Inertial factor CBESS
+c1_CBESS = 2; % Constant Speed Local CBESS
+c2_CBESS = 2; % Constant Speed Global CBESS
 
-w_CGD = 1; % Inertial factor CGD
-c1_CGD = 1; % Constant Speed Local CGD 
-c2_CGD = 1; % Constant Speed Global CGD
+w_CGD = 0.5; % Inertial factor CGD
+c1_CGD = 2; % Constant Speed Local CGD 
+c2_CGD = 2; % Constant Speed Global CGD
 
-w_CDR = 1; % Inertial factor CDR
-c1_CDR = 1; % Constant Speed Local CDR 
-c2_CDR = 1; % Constant Speed Global CDR
+w_CDR = 0.5; % Inertial factor CDR
+c1_CDR = 2; % Constant Speed Local CDR 
+c2_CDR = 2; % Constant Speed Global CDR
 
 const_w = [[w_CPV ;c1_CPV ; c2_CPV]';
            [w_CBESS ;c1_CBESS ;c2_CBESS]';
@@ -77,7 +77,7 @@ CLimt = [CPVMin,CPVMax;
         CGDMin,CGDMax;
         CDRMin,CDRMax];
 %%
-numberOfIterations = 60;
+numberOfIterations = 100;
 HDPS=15;
 load('sol','-mat');% Carga de datos de sol
 alpasol=0.7; 
@@ -87,6 +87,8 @@ load('qload','-mat');
 
 operationalCostIte = zeros(HDPS,sizeC(2));
 operationalCostIteGlobal = zeros(HDPS,sizeC(2),numberOfIterations);
+
+CTotal = zeros(sizeC(1),sizeC(2),numberOfIterations);
 %%
 Stop = false;
 iter = 1;
@@ -125,10 +127,11 @@ while ( Stop == false )
             gBestValuePass = gBestValuePres;
         end
     end
+    CTotal(:,:,iter) = C;
     % Update particules
     V = (const_w(:,1).*V) + (const_w(:,2).*rand(4,1)).*(lBest-C) ...
         + (const_w(:,3).*rand(4,1)).*(gBest-C);
-  
+    
     C = C + V;
     for ip = 1:sizeC(2)
         for ival = 1:sizeC(1)
@@ -151,9 +154,36 @@ while ( Stop == false )
     lBestValuePres = zeros(1,sizeC(2));
 end
 
-    
- figure
- plot(squeeze(sum(operationalCostIteGlobal))')
+
+figure
+plot(squeeze(sum(operationalCostIteGlobal))')
 
 
+figure
+subplot(2,2,1)
+plot(squeeze(CTotal(:,1,:))')
+title('Particle 1')
+xlabel('Number of Iterations')
+ylabel('Capacity [KW]')
+legend('CPV','CBESS','CGD','CDR')
 
+subplot(2,2,2)
+plot(squeeze(CTotal(:,2,:))')
+title('Particle 2')
+xlabel('Number of Iterations')
+ylabel('Capacity [KW]')
+legend('CPV','CBESS','CGD','CDR')
+
+subplot(2,2,3)
+plot(squeeze(CTotal(:,3,:))')
+title('Particle 3')
+xlabel('Number of Iterations')
+ylabel('Capacity [KW]')
+legend('CPV','CBESS','CGD','CDR')
+
+subplot(2,2,4)
+plot(squeeze(CTotal(:,4,:))')
+title('Particle 4')
+xlabel('Number of Iterations')
+ylabel('Capacity [KW]')
+legend('CPV','CBESS','CGD','CDR')
