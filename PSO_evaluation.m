@@ -1,5 +1,5 @@
 
-clc;
+%clc;
 close all;
 clear all;
 
@@ -10,10 +10,17 @@ saltob=300;                             % Salto inicial de BESS     [kW]
 saltogd=100;                            % Salto inicial de GD       [kW]
 saltodr=10;                             % Salto inicial de DR       [kW]
 
-CPV=[1, saltopv, (2*saltopv),20];    % Capacidad instalada solar [kW]
-CBESS=[1, saltob, (2*saltob),20];    % Capacidad de la bater�a   [kWh]
-CGD=[1, saltogd, (2*saltogd),20];    % Generador diesel          [kW]
-CDR=[1, saltodr, (2*saltodr),20];      % Capacidad maxima de DR    [kW]
+n=20;
+
+CPV=linspace(1,1000,n);    % Capacidad instalada solar [kW]
+CBESS=linspace(1,1000,n);    % Capacidad de la bater�a   [kWh]
+CGD=linspace(1,1000,n);    % Generador diesel          [kW]
+CDR=linspace(1,50,n); 
+
+%CPV=[1, saltopv, (2*saltopv),700,1,1];    % Capacidad instalada solar [kW]
+%CBESS=[1, saltob, (2*saltob),700,1,1];    % Capacidad de la bater�a   [kWh]
+%CGD=[1, saltogd, (2*saltogd),700,1,1];    % Generador diesel          [kW]
+%CDR=[1, saltodr, (2*saltodr),50,1,1];      % Capacidad maxima de DR    [kW]
 
 %           i_Particles           
 %    |CPV_1   , .. ,CPV_i   |   p
@@ -108,7 +115,7 @@ while ( Stop == false )
         % Global
         gBestValuePass = min(sum(operationalCostIte));
         id_gBest = find(sum(operationalCostIte) == gBestValuePass);
-        gBest = C(:,id_gBest);
+        gBest(:,1) = C(:,id_gBest);
     else
         % Local
         lBestValuePres = sum(operationalCostIte);
@@ -123,14 +130,14 @@ while ( Stop == false )
         gBestValuePres = min(sum(operationalCostIte));
         if gBestValuePres < gBestValuePass
             id_gBest = find(sum(operationalCostIte) == gBestValuePres);
-            gBest = C(:,id_gBest);
+            gBest(:,1) = C(:,id_gBest(1));
             gBestValuePass = gBestValuePres;
         end
     end
     CTotal(:,:,iter) = C;
     % Update particules
-    V = (const_w(:,1).*V) + (const_w(:,2).*rand(4,1)).*(lBest-C) ...
-        + (const_w(:,3).*rand(4,1)).*(gBest-C);
+    V = (const_w(:,1).*V) + (const_w(:,2)*rand(1,1)).*(lBest-C) ...
+        + (const_w(:,3)*rand(1,1)).*(gBest-C);
     
     C = C + V;
     for ip = 1:sizeC(2)
