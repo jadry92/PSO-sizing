@@ -10,12 +10,17 @@ saltob=300;                             % Salto inicial de BESS     [kW]
 saltogd=100;                            % Salto inicial de GD       [kW]
 saltodr=10;                             % Salto inicial de DR       [kW]
 
-n=20;
+n=100;
 
-CPV=linspace(1,1000,n);    % Capacidad instalada solar [kW]
-CBESS=linspace(1,1000,n);    % Capacidad de la bater�a   [kWh]
-CGD=linspace(1,1000,n);    % Generador diesel          [kW]
-CDR=linspace(1,50,n); 
+CPV = 1 + 999*rand(1,n);
+CBESS = 1 + 999*rand(1,n);
+CGD = 1 + 999*rand(1,n);
+CDR = 1 + 50*rand(1,n);
+
+%CPV=linspace(1,1000,n);    % Capacidad instalada solar [kW]
+%CBESS=linspace(1,1000,n);    % Capacidad de la bater�a   [kWh]
+%CGD=linspace(1,1000,n);    % Generador diesel          [kW]
+%CDR=linspace(1,50,n); 
 
 %CPV=[1, saltopv, (2*saltopv),700,1,1];    % Capacidad instalada solar [kW]
 %CBESS=[1, saltob, (2*saltob),700,1,1];    % Capacidad de la bater�a   [kWh]
@@ -87,7 +92,7 @@ CLimt = [CPVMin,CPVMax;
 numberOfIterations = 100;
 HDPS=15;
 load('sol','-mat');% Carga de datos de sol
-alpasol=0.7; 
+alpasol=1; 
 sole(1:15,:)=alpasol*sol;   % Creaci�n de variable de sol para el an�lisis de sensibilidad
 load('qload','-mat');  
 
@@ -102,6 +107,7 @@ iter = 1;
 
 while ( Stop == false )
     % 
+    operationalCostIte = zeros(HDPS,sizeC(2));
     for ip = 1:sizeC(2)
         QSUN=C(1,ip)*sole/1000;
         operationalCostIte(:,ip) = despacho(C(:,ip)',HDPS,QSUN,QLOAD);
@@ -165,6 +171,7 @@ end
 figure
 plot(squeeze(sum(operationalCostIteGlobal))')
 
+min(squeeze(sum(operationalCostIteGlobal))')
 
 figure
 subplot(2,2,1)
